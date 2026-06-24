@@ -14,7 +14,6 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 
 for ticker in TICKERS:
 
-```
 print(f"download {ticker}")
 
 df = yf.download(
