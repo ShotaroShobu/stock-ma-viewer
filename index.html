@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moving Average Viewer</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Moving Average Viewer</h1>
+
+<div class="controls">
+
+    <label>Ticker</label>
+    <input id="ticker" value="QQQ">
+
+    <button onclick="loadData()">
+        Load
+    </button>
+
+</div>
+
+<div class="controls">
+
+    <label><input type="checkbox" id="ma10" checked>10MA</label>
+    <label><input type="checkbox" id="ma25" checked>25MA</label>
+    <label><input type="checkbox" id="ma50" checked>50MA</label>
+    <label><input type="checkbox" id="ma100" checked>100MA</label>
+    <label><input type="checkbox" id="ma200" checked>200MA</label>
+
+</div>
+
+<div id="status"></div>
+
+<canvas id="chart"></canvas>
+
+<script src="app.js"></script>
+
+</body>
+</html>

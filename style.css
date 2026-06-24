@@ -1,0 +1,12 @@
+body {
+    font-family: sans-serif;
+    margin: 20px;
+}
+
+.controls {
+    margin-bottom: 15px;
+}
+
+canvas {
+    max-height: 700px;
+}
