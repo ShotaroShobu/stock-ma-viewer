@@ -2,14 +2,11 @@ let chart = null;
 
 async function loadTicker(ticker)
 {
-    const response =
-        await fetch(`./data/${ticker}.json`);
+    const response = await fetch(`./data/${ticker}.json`);
 
     if (!response.ok)
     {
-        throw new Error(
-            `Failed to load ${ticker}.json`
-        );
+        throw new Error(`Cannot load ${ticker}.json`);
     }
 
     return await response.json();
@@ -25,131 +22,266 @@ function createDataset(label, data)
     };
 }
 
-async function drawChart()
+function addDataset(
+    datasets,
+    checkboxId,
+    label,
+    values
+)
 {
-    const ticker =
-        document.getElementById("ticker").value;
+    const checkbox =
+        document.getElementById(checkboxId);
 
-    const data =
-        await loadTicker(ticker);
-
-    const labels =
-        data.map(x =>
-            x.Date.substring(0, 10)
-        );
-
-    const close =
-        data.map(x => x.Close);
-
-    const ma10 =
-        data.map(x => x.MA10);
-
-    const ma25 =
-        data.map(x => x.MA25);
-
-    const ma50 =
-        data.map(x => x.MA50);
-
-    const ma100 =
-        data.map(x => x.MA100);
-
-    const ma200 =
-        data.map(x => x.MA200);
-
-    if(chart)
+    if (checkbox.checked)
     {
-        chart.destroy();
+        datasets.push(
+            createDataset(
+                label,
+                values
+            )
+        );
     }
-
-    chart = new Chart(
-        document.getElementById("chart"),
-        {
-            type: "line",
-
-            data:
-            {
-                labels: labels,
-
-                datasets:
-                [
-                    createDataset(
-                        "Close",
-                        close
-                    ),
-
-                    createDataset(
-                        "MA10",
-                        ma10
-                    ),
-
-                    createDataset(
-                        "MA25",
-                        ma25
-                    ),
-
-                    createDataset(
-                        "MA50",
-                        ma50
-                    ),
-
-                    createDataset(
-                        "MA100",
-                        ma100
-                    ),
-
-                    createDataset(
-                        "MA200",
-                        ma200
-                    )
-                ]
-            },
-
-            options:
-            {
-                responsive: true,
-
-                interaction:
-                {
-                    mode: "index",
-                    intersect: false
-                },
-
-                plugins:
-                {
-                    legend:
-                    {
-                        display: true
-                    }
-                }
-            }
-        }
-    );
-
-    updateSummary(data);
 }
 
-function updateSummary(data)
+function updateSummary(data, ticker)
 {
     const latest =
         data[data.length - 1];
 
     const signal =
         latest.Close > latest.MA200
-        ? "BUY"
-        : "SELL";
+            ? "BUY"
+            : "SELL";
+
+    const diff =
+        (
+            (latest.Close - latest.MA200)
+            / latest.MA200
+        ) * 100;
 
     document.getElementById(
         "summary"
     ).innerHTML =
     `
-    <b>Close</b>: ${latest.Close.toFixed(2)}
-    <br>
+    <h3>${ticker}</h3>
 
-    <b>MA200</b>: ${latest.MA200.toFixed(2)}
-    <br>
+    <div>
+        Close: ${latest.Close.toFixed(2)}
+    </div>
 
-    <b>Signal</b>: ${signal}
+    <div>
+        MA200: ${latest.MA200.toFixed(2)}
+    </div>
+
+    <div>
+        Difference: ${diff.toFixed(2)}%
+    </div>
+
+    <div>
+        Signal:
+        <strong>${signal}</strong>
+    </div>
     `;
+}
+
+async function drawChart()
+{
+    try
+    {
+        document.getElementById(
+            "status"
+        ).innerHTML = "Loading...";
+
+        const ticker =
+            document.getElementById(
+                "ticker"
+            ).value;
+
+        const period =
+            document.getElementById(
+                "period"
+            ).value;
+
+        let data =
+            await loadTicker(ticker);
+
+        if (period !== "all")
+        {
+            data =
+                data.slice(
+                    -Number(period)
+                );
+        }
+
+        const labels =
+            data.map(
+                x => x.Date.substring(0, 10)
+            );
+
+        const close =
+            data.map(
+                x => x.Close
+            );
+
+        const ma10 =
+            data.map(
+                x => x.MA10
+            );
+
+        const ma25 =
+            data.map(
+                x => x.MA25
+            );
+
+        const ma50 =
+            data.map(
+                x => x.MA50
+            );
+
+        const ma100 =
+            data.map(
+                x => x.MA100
+            );
+
+        const ma200 =
+            data.map(
+                x => x.MA200
+            );
+
+        const datasets = [];
+
+        datasets.push(
+            createDataset(
+                "Close",
+                close
+            )
+        );
+
+        addDataset(
+            datasets,
+            "showMA10",
+            "MA10",
+            ma10
+        );
+
+        addDataset(
+            datasets,
+            "showMA25",
+            "MA25",
+            ma25
+        );
+
+        addDataset(
+            datasets,
+            "showMA50",
+            "MA50",
+            ma50
+        );
+
+        addDataset(
+            datasets,
+            "showMA100",
+            "MA100",
+            ma100
+        );
+
+        addDataset(
+            datasets,
+            "showMA200",
+            "MA200",
+            ma200
+        );
+
+        if (chart)
+        {
+            chart.destroy();
+        }
+
+        chart = new Chart(
+            document.getElementById("chart"),
+            {
+                type: "line",
+
+                data:
+                {
+                    labels: labels,
+                    datasets: datasets
+                },
+
+                options:
+                {
+                    responsive: true,
+
+                    interaction:
+                    {
+                        mode: "index",
+                        intersect: false
+                    },
+
+                    scales:
+                    {
+                        x:
+                        {
+                            ticks:
+                            {
+                                maxTicksLimit: 12
+                            }
+                        }
+                    },
+
+                    plugins:
+                    {
+                        legend:
+                        {
+                            display: true
+                        },
+
+                        zoom:
+                        {
+                            pan:
+                            {
+                                enabled: true,
+                                mode: "x"
+                            },
+
+                            zoom:
+                            {
+                                wheel:
+                                {
+                                    enabled: true
+                                },
+
+                                pinch:
+                                {
+                                    enabled: true
+                                },
+
+                                mode: "x"
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+        updateSummary(
+            data,
+            ticker
+        );
+
+        document.getElementById(
+            "status"
+        ).innerHTML = "";
+    }
+    catch (error)
+    {
+        console.error(error);
+
+        document.getElementById(
+            "status"
+        ).innerHTML =
+            error.message;
+    }
 }
 
 document

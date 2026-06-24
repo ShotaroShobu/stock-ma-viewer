@@ -6,6 +6,7 @@
     <title>Moving Average Viewer</title>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -16,9 +17,7 @@
 
 <div class="toolbar">
 
-    <label for="ticker">
-        Ticker
-    </label>
+    <label for="ticker">Ticker</label>
 
     <select id="ticker">
         <option value="QQQ">QQQ</option>
@@ -27,13 +26,52 @@
         <option value="^N225">^N225</option>
     </select>
 
-    <button id="loadButton">
-        Load
-    </button>
+    <label for="period">Period</label>
+
+    <select id="period">
+        <option value="126">6M</option>
+        <option value="252">1Y</option>
+        <option value="504" selected>2Y</option>
+        <option value="1260">5Y</option>
+        <option value="all">ALL</option>
+    </select>
+
+    <button id="loadButton">Load</button>
+
+</div>
+
+<div class="toolbar">
+
+    <label>
+        <input type="checkbox" id="showMA10" checked>
+        MA10
+    </label>
+
+    <label>
+        <input type="checkbox" id="showMA25" checked>
+        MA25
+    </label>
+
+    <label>
+        <input type="checkbox" id="showMA50" checked>
+        MA50
+    </label>
+
+    <label>
+        <input type="checkbox" id="showMA100" checked>
+        MA100
+    </label>
+
+    <label>
+        <input type="checkbox" id="showMA200" checked>
+        MA200
+    </label>
 
 </div>
 
 <div id="summary"></div>
+
+<div id="status"></div>
 
 <canvas id="chart"></canvas>
 
