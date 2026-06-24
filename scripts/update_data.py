@@ -5,6 +5,7 @@ TICKERS = [
     "QQQ",
     "SPY",
     "SOXX",
+    "^N225",
 ]
 
 OUTPUT_DIR = Path("data")
