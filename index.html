@@ -9,32 +9,31 @@
 
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <h1>Moving Average Viewer</h1>
 
-<div class="controls">
+<div class="toolbar">
 
-    <label>Ticker</label>
-    <input id="ticker" value="QQQ">
+    <label for="ticker">
+        Ticker
+    </label>
 
-    <button onclick="loadData()">
+    <select id="ticker">
+        <option value="QQQ">QQQ</option>
+        <option value="SPY">SPY</option>
+        <option value="SOXX">SOXX</option>
+        <option value="^N225">^N225</option>
+    </select>
+
+    <button id="loadButton">
         Load
     </button>
 
 </div>
 
-<div class="controls">
-
-    <label><input type="checkbox" id="ma10" checked>10MA</label>
-    <label><input type="checkbox" id="ma25" checked>25MA</label>
-    <label><input type="checkbox" id="ma50" checked>50MA</label>
-    <label><input type="checkbox" id="ma100" checked>100MA</label>
-    <label><input type="checkbox" id="ma200" checked>200MA</label>
-
-</div>
-
-<div id="status"></div>
+<div id="summary"></div>
 
 <canvas id="chart"></canvas>
 

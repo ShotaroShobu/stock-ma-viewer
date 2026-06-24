@@ -3,10 +3,15 @@ body {
     margin: 20px;
 }
 
-.controls {
-    margin-bottom: 15px;
+.toolbar {
+    margin-bottom: 20px;
+}
+
+#summary {
+    margin-bottom: 20px;
+    font-size: 18px;
 }
 
 canvas {
-    max-height: 700px;
+    max-height: 800px;
 }

@@ -1,94 +1,60 @@
 let chart = null;
 
-function movingAverage(values, period)
+async function loadTicker(ticker)
 {
-    const result = [];
+    const response =
+        await fetch(`./data/${ticker}.json`);
 
-    for(let i = 0; i < values.length; i++)
+    if (!response.ok)
     {
-        if(i < period - 1)
-        {
-            result.push(null);
-            continue;
-        }
-
-        let sum = 0;
-
-        for(let j = i - period + 1; j <= i; j++)
-        {
-            sum += values[j];
-        }
-
-        result.push(sum / period);
+        throw new Error(
+            `Failed to load ${ticker}.json`
+        );
     }
 
-    return result;
+    return await response.json();
 }
 
-async function loadData()
+function createDataset(label, data)
+{
+    return {
+        label: label,
+        data: data,
+        pointRadius: 0,
+        borderWidth: 1.5
+    };
+}
+
+async function drawChart()
 {
     const ticker =
         document.getElementById("ticker").value;
 
-    const url =
-        `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?range=5y&interval=1d`;
-
-    const response =
-        await fetch(url);
-
-    const json =
-        await response.json();
-
-    const result =
-        json.chart.result[0];
-
-    const timestamps =
-        result.timestamp;
-
-    const closes =
-        result.indicators.quote[0].close;
+    const data =
+        await loadTicker(ticker);
 
     const labels =
-        timestamps.map(
-            t => new Date(t * 1000)
-                    .toISOString()
-                    .substring(0,10)
+        data.map(x =>
+            x.Date.substring(0, 10)
         );
 
-    const datasets = [
-        {
-            label: ticker,
-            data: closes,
-            borderWidth: 2
-        }
-    ];
+    const close =
+        data.map(x => x.Close);
 
-    const maMap =
-    {
-        10: document.getElementById("ma10"),
-        25: document.getElementById("ma25"),
-        50: document.getElementById("ma50"),
-        100: document.getElementById("ma100"),
-        200: document.getElementById("ma200")
-    };
+    const ma10 =
+        data.map(x => x.MA10);
 
-    Object.entries(maMap).forEach(
-        ([period, checkbox]) =>
-        {
-            if(checkbox.checked)
-            {
-                datasets.push(
-                {
-                    label: `${period}MA`,
-                    data: movingAverage(
-                        closes,
-                        Number(period)
-                    ),
-                    pointRadius: 0
-                });
-            }
-        }
-    );
+    const ma25 =
+        data.map(x => x.MA25);
+
+    const ma50 =
+        data.map(x => x.MA50);
+
+    const ma100 =
+        data.map(x => x.MA100);
+
+    const ma200 =
+        data.map(x => x.MA200);
 
     if(chart)
     {
@@ -99,34 +65,98 @@ async function loadData()
         document.getElementById("chart"),
         {
             type: "line",
+
             data:
             {
-                labels,
-                datasets
+                labels: labels,
+
+                datasets:
+                [
+                    createDataset(
+                        "Close",
+                        close
+                    ),
+
+                    createDataset(
+                        "MA10",
+                        ma10
+                    ),
+
+                    createDataset(
+                        "MA25",
+                        ma25
+                    ),
+
+                    createDataset(
+                        "MA50",
+                        ma50
+                    ),
+
+                    createDataset(
+                        "MA100",
+                        ma100
+                    ),
+
+                    createDataset(
+                        "MA200",
+                        ma200
+                    )
+                ]
+            },
+
+            options:
+            {
+                responsive: true,
+
+                interaction:
+                {
+                    mode: "index",
+                    intersect: false
+                },
+
+                plugins:
+                {
+                    legend:
+                    {
+                        display: true
+                    }
+                }
             }
         }
     );
 
-    const latestPrice =
-        closes[closes.length - 1];
+    updateSummary(data);
+}
 
-    const ma200 =
-        movingAverage(closes, 200);
-
-    const latestMA200 =
-        ma200[ma200.length - 1];
+function updateSummary(data)
+{
+    const latest =
+        data[data.length - 1];
 
     const signal =
-        latestPrice > latestMA200
+        latest.Close > latest.MA200
         ? "BUY"
         : "SELL";
 
-    document.getElementById("status").innerHTML =
-        `
-        Current Price : ${latestPrice.toFixed(2)}<br>
-        MA200 : ${latestMA200.toFixed(2)}<br>
-        Signal : ${signal}
-        `;
+    document.getElementById(
+        "summary"
+    ).innerHTML =
+    `
+    <b>Close</b>: ${latest.Close.toFixed(2)}
+    <br>
+
+    <b>MA200</b>: ${latest.MA200.toFixed(2)}
+    <br>
+
+    <b>Signal</b>: ${signal}
+    `;
 }
 
-loadData();
+document
+    .getElementById("loadButton")
+    .addEventListener(
+        "click",
+        drawChart
+    );
+
+drawChart();
