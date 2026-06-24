@@ -25,6 +25,9 @@ for ticker in TICKERS:
     if df.empty:
         continue
 
+    if isinstance(df.columns, pd.MultiIndex):
+        df.columns = df.columns.droplevel(1)
+
     df["MA10"] = df["Close"].rolling(10).mean()
     df["MA25"] = df["Close"].rolling(25).mean()
     df["MA50"] = df["Close"].rolling(50).mean()
