@@ -1,4 +1,5 @@
 from pathlib import Path
+from pandas as pd
 import yfinance as yf
 
 TICKERS = [
@@ -20,6 +21,7 @@ for ticker in TICKERS:
         period="10y",
         auto_adjust=True,
         progress=False,
+        multi_level_index=False
     )
 
     if df.empty:
