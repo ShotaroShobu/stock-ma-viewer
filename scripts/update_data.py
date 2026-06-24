@@ -19,12 +19,17 @@ for ticker in TICKERS:
         ticker,
         period="10y",
         auto_adjust=True,
-        progress=False
+        progress=False,
     )
 
     if df.empty:
-        print(f"{ticker}: no data")
         continue
+
+    df["MA10"] = df["Close"].rolling(10).mean()
+    df["MA25"] = df["Close"].rolling(25).mean()
+    df["MA50"] = df["Close"].rolling(50).mean()
+    df["MA100"] = df["Close"].rolling(100).mean()
+    df["MA200"] = df["Close"].rolling(200).mean()
 
     df.reset_index(inplace=True)
 
@@ -33,7 +38,7 @@ for ticker in TICKERS:
     df.to_json(
         output_file,
         orient="records",
-        date_format="iso"
+        date_format="iso",
     )
 
     print(f"saved {output_file}")
