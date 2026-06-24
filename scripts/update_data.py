@@ -1,5 +1,5 @@
 from pathlib import Path
-from pandas as pd
+import pandas as pd
 import yfinance as yf
 
 TICKERS = [
